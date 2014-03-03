@@ -1,13 +1,13 @@
 package ai;
 
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import model.Moves;
 import model.OthelloBoard;
-import test.Test;
 
 public class Search {
 
@@ -15,25 +15,21 @@ public class Search {
 	private static int TIE = 0;
 	private static int AI_WON = 1;
 
-	public static void MinMax(int[][] state, int aiColor) {
-		StateTree states = new StateTree(state, aiColor);
-		states.buildTree(5000L);
-		int[] optMove = states.getOptMove();
-		try {
-			PrintWriter pw = new PrintWriter("tree.txt");
-
-			pw.println(states.printTree());
-			pw.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println("Optimal move: " + optMove[0] + ", " + optMove[1]);
-	}
-
 	public static int[] findMove(OthelloBoard board, int aiColor, long timeLimit) {
 		StateTree states = new StateTree(board.getState(), aiColor);
-		states.buildTree(5000L);
+		states.buildTree(timeLimit);
+
+//		try {
+//			System.out.println("Start printing...");
+//			PrintStream ps=new PrintStream(new FileOutputStream("tree.txt"));
+//			System.setOut(ps);
+//			states.printTree();
+//			ps.close();
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
 		return states.getOptMove();
 	}
 
@@ -74,28 +70,23 @@ public class Search {
 
 	private static class StateTree {
 		private Node root;
-		private ArrayList<Node> front;
 
 		public StateTree(int[][] rootData, int playerColor) {
-			root = new Node(rootData, null, playerColor, false, 1, null, "0");
-			front = new ArrayList<Node>();
-			front.add(root);
+			root = new Node(rootData, null, playerColor, false, 0, null, "0");
 		}
 
 		public void buildTree(Long timeLimit) {
 			root.createNewStates(10, timeLimit, System.currentTimeMillis());
 		}
 
-
 		public int[] getOptMove() {
 			return root.getOptMove();
 		}
 
-		public String printTree() {
-			StringBuilder s = new StringBuilder();
-			s.append("The tree");
-			s.append(root.printTree());
-			return s.toString();
+		public void printTree() {
+			System.out.println("The tree");
+			root.printTree();
+			System.out.println();
 		}
 
 		public class Node {
@@ -193,22 +184,34 @@ public class Search {
 				return null;
 			}
 
-			public String printTree() {
-				StringBuilder s = new StringBuilder();
-				s.append("Name: " + name + "\n");
-				s.append("Level: " + level + "\n");
-				s.append("Children: " + children.size() + "\n");
-				s.append("Players turn: " + max + "\n");
-				s.append("Evaluation: " + evaluation + "\n");
+			public void printTree() {
+				String tabs = new String(new char[level]).replace("\0", "\t");
+				System.out.println(tabs + "Children: " + children.size());
+				System.out.println(tabs + "Players turn: " + max);
+				System.out.println(tabs + "Evaluation: " + evaluation);
 				if (move != null) {
-					s.append("Move: " + move[0] + ", " + move[1] + "\n");
+					System.out.println(tabs + "Move: " + move[0] + ", "
+							+ move[1]);
 				}
-				s.append(Test.printBoard(state));
-				s.append("\n");
+				printBoard(state, tabs);
+				System.out.println();
 				for (Node child : children) {
-					s.append(child.printTree());
+					child.printTree();
 				}
-				return s.toString();
+			}
+
+			public void printBoard(int[][] board, String tabs) {
+				for (int y = 0; y < board.length; y++) {
+					System.out.print(tabs + "|");
+					for (int x = 0; x < board[y].length; x++) {
+						if (board[x][y] < 0) {
+							System.out.print(board[x][y] + "|");
+						} else {
+							System.out.print(" " + board[x][y] + "|");
+						}
+					}
+					System.out.println();
+				}
 			}
 		}
 	}
