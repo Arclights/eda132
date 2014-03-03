@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 
 import model.OthelloBoard;
 
+@SuppressWarnings("serial")
 public class TurnPanel extends JPanel implements Observer {
 
 	TurnIndicator aiIndicator;

@@ -3,6 +3,11 @@ package model;
 import java.util.ArrayList;
 
 public class Moves {
+	
+	public static final int PLAYER_WON = -1;
+	public static final int TIE = 0;
+	public static final int AI_WON = 1;
+	
 	public static int[][] getLeagalMoves(int color, int[][] board) {
 		ArrayList<Integer[]> moves = new ArrayList<Integer[]>();
 		for (int x = 0; x < board.length; x++) {
@@ -189,5 +194,25 @@ public class Moves {
 			}
 		}
 		return false;
+	}
+	
+	public static int utility(int[][] state, int color) {
+		int aiMarkers = 0;
+		int playerMarkers = 0;
+		for (int[] row : state) {
+			for (int cell : row) {
+				if (cell == color) {
+					aiMarkers++;
+				} else if (cell + color == 0) {
+					playerMarkers++;
+				}
+			}
+		}
+		if (aiMarkers > playerMarkers) {
+			return AI_WON;
+		} else if (aiMarkers < playerMarkers) {
+			return PLAYER_WON;
+		}
+		return TIE;
 	}
 }

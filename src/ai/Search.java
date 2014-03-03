@@ -11,9 +11,7 @@ import model.OthelloBoard;
 
 public class Search {
 
-	private static int PLAYER_WON = -1;
-	private static int TIE = 0;
-	private static int AI_WON = 1;
+	
 
 	public static int[] findMove(OthelloBoard board, int aiColor, long timeLimit) {
 		StateTree states = new StateTree(board.getState(), aiColor);
@@ -33,25 +31,7 @@ public class Search {
 		return states.getOptMove();
 	}
 
-	private static double utility(int[][] state, int color, boolean aisTurn) {
-		int aiMarkers = 0;
-		int playerMarkers = 0;
-		for (int[] row : state) {
-			for (int cell : row) {
-				if (cell == color) {
-					aiMarkers++;
-				} else if (cell + color == 0) {
-					playerMarkers++;
-				}
-			}
-		}
-		if (aiMarkers > playerMarkers) {
-			return AI_WON;
-		} else if (aiMarkers < playerMarkers) {
-			return PLAYER_WON;
-		}
-		return TIE;
-	}
+	
 
 	private static double eVal(int[][] state, int color, boolean aisTurn) {
 		double aiMarkers = 0;
@@ -125,7 +105,7 @@ public class Search {
 				} else if (moves.length == 0) {
 					pass = true;
 					if (parent.pass) {
-						evaluation = utility(state, aiColor, max);
+						evaluation = Moves.utility(state, aiColor);
 					} else {
 						int[][] newState = copy(state);
 						Node child = new Node(newState, new int[] { move[0],

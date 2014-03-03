@@ -4,27 +4,26 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseListener;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import model.OthelloBoard;
 
 @SuppressWarnings("serial")
-public class Othello extends JFrame implements ActionListener {
+public class Othello extends JFrame implements Observer {
 
 	private final int SQUARE_SIZE = 60;
 	JButton passButton;
-	OthelloBoard board;
 
 	public Othello(OthelloBoard board) {
 		super("Othello");
-		this.board = board;
+		board.addObserver(this);
 		setLayout(new GridBagLayout());
 		GridBagConstraints gc = new GridBagConstraints();
 
@@ -35,7 +34,7 @@ public class Othello extends JFrame implements ActionListener {
 
 		gc.gridx = 2;
 		passButton = new JButton("Pass");
-		passButton.addActionListener(this);
+		passButton.addActionListener(board);
 		add(passButton, gc);
 
 		JPanel squares = new JPanel();
@@ -58,11 +57,10 @@ public class Othello extends JFrame implements ActionListener {
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == passButton) {
-			board.pass(board.getPlayerColor());
+	public void update(Observable o, Object arg) {
+		if (arg instanceof String) {
+			JOptionPane.showMessageDialog(this, (String) arg);
 		}
-
 	}
 
 }

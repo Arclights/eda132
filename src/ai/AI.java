@@ -19,7 +19,7 @@ public class AI implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if (((Integer) arg) == color) {
+		if (arg instanceof Integer && ((Integer) arg) == color) {
 			new runThread().start();
 		}
 	}
