@@ -22,8 +22,9 @@ class OthelloSquare extends JPanel implements Observer, MouseListener {
 	private OthelloBoard board;
 	private int x, y;
 
-	private Color[] bgs = new Color[]{new Color(150,150,150),new Color(200,200,200)};
-	
+	private Color[] bgs = new Color[] { new Color(150, 150, 150),
+			new Color(200, 200, 200) };
+
 	public OthelloSquare(OthelloBoard board, int x, int y) {
 		board.addObserver(this);
 		this.board = board;
@@ -40,9 +41,10 @@ class OthelloSquare extends JPanel implements Observer, MouseListener {
 		int height = getHeight();
 
 		Graphics2D g2 = (Graphics2D) g;
-		g2.setRenderingHint (RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		
-		g2.setColor(bgs[x&1^y&1]);
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+
+		g2.setColor(bgs[x & 1 ^ y & 1]);
 		g2.fillRect(0, 0, width, height);
 
 		switch (board.getSquare(x, y)) {
@@ -53,8 +55,8 @@ class OthelloSquare extends JPanel implements Observer, MouseListener {
 			g2.setColor(Color.WHITE);
 			break;
 		}
-		g2.fillOval(10, 10, width-20, height-20);
-		
+		g2.fillOval(10, 10, width - 20, height - 20);
+
 	}
 
 	@Override

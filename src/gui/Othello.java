@@ -5,6 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -24,6 +25,9 @@ public class Othello extends JFrame {
 		add(new TurnPanel(board));
 
 		gc.gridx = 1;
+		add(Box.createHorizontalGlue(), gc);
+
+		gc.gridx = 2;
 		JButton passButton = new JButton("Pass");
 		add(passButton, gc);
 
@@ -42,7 +46,7 @@ public class Othello extends JFrame {
 		}
 		gc.gridx = 0;
 		gc.gridy = 1;
-		gc.gridwidth = 2;
+		gc.gridwidth = 3;
 		add(squares, gc);
 		pack();
 		setVisible(true);
