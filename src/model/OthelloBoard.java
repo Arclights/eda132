@@ -23,7 +23,7 @@ public class OthelloBoard extends Observable {
 		board[width / 2 - 1][height / 2] = BLACK;
 		board[width / 2 - 1][height / 2 - 1] = WHITE;
 		board[width / 2][height / 2 - 1] = BLACK;
-		
+
 		playerColor = BLACK;
 		AIColor = WHITE;
 		currentColor = playerColor;
@@ -48,6 +48,19 @@ public class OthelloBoard extends Observable {
 			setChanged();
 			notifyObservers(currentColor);
 		}
+	}
+
+	public void pass(int color) {
+		if (color == currentColor) {
+			currentColor *= -1;
+			currentLegalMoves = Moves.getLeagalMoves(currentColor, board);
+			setChanged();
+			notifyObservers(currentColor);
+		}
+	}
+	
+	public int getPlayerColor(){
+		return playerColor;
 	}
 
 	public int getWidth() {

@@ -4,6 +4,9 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -13,12 +16,15 @@ import javax.swing.JPanel;
 import model.OthelloBoard;
 
 @SuppressWarnings("serial")
-public class Othello extends JFrame {
+public class Othello extends JFrame implements ActionListener {
 
 	private final int SQUARE_SIZE = 60;
+	JButton passButton;
+	OthelloBoard board;
 
 	public Othello(OthelloBoard board) {
 		super("Othello");
+		this.board = board;
 		setLayout(new GridBagLayout());
 		GridBagConstraints gc = new GridBagConstraints();
 
@@ -28,13 +34,12 @@ public class Othello extends JFrame {
 		add(Box.createHorizontalGlue(), gc);
 
 		gc.gridx = 2;
-		JButton passButton = new JButton("Pass");
+		passButton = new JButton("Pass");
+		passButton.addActionListener(this);
 		add(passButton, gc);
 
 		JPanel squares = new JPanel();
 		squares.setLayout(new GridLayout(board.getWidth(), board.getHeight()));
-		// squares.setSize(board.getWidth() * SQUARE_SIZE, board.getHeight() *
-		// SQUARE_SIZE);
 		squares.setPreferredSize(new Dimension(board.getWidth() * SQUARE_SIZE,
 				board.getHeight() * SQUARE_SIZE));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -50,6 +55,14 @@ public class Othello extends JFrame {
 		add(squares, gc);
 		pack();
 		setVisible(true);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == passButton) {
+			board.pass(board.getPlayerColor());
+		}
+
 	}
 
 }
