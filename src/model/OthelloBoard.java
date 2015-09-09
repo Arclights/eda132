@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 import java.util.Observable;
 
 import ai.AI;
-import model.Moves;
 
 /**
  * This is the Othello model.
@@ -50,7 +49,7 @@ public class OthelloBoard extends Observable implements ActionListener {
         AIColor = WHITE;
         currentColor = playerColor;
 
-        currentLegalMoves = Moves.getLeagalMoves(currentColor, board);
+        currentLegalMoves = MoveUtility.getLeagalMoves(currentColor, board);
         new AI(this, AIColor);
     }
 
@@ -96,8 +95,8 @@ public class OthelloBoard extends Observable implements ActionListener {
      */
     public void setSquare(int x, int y, int color) {
         if (color == currentColor
-                && Moves.isLegalMove(currentLegalMoves, new int[]{x, y})) {
-            Moves.performMove(board, new int[]{x, y}, color);
+                && MoveUtility.isLegalMove(currentLegalMoves, new int[]{x, y})) {
+            MoveUtility.performMove(board, new int[]{x, y}, color);
             handleMoves();
         }
     }
@@ -111,17 +110,17 @@ public class OthelloBoard extends Observable implements ActionListener {
     public void pass(int color) {
         if (color == currentColor) {
             if (passes[0] + passes[1] == 2) {
-                int result = Moves.utility(board, AIColor);
+                int result = MoveUtility.utility(board, AIColor);
                 switch (result) {
-                    case Moves.PLAYER_WON:
+                    case MoveUtility.PLAYER_WON:
                         setChanged();
                         notifyObservers("Congratulations!\nYou won!");
                         break;
-                    case Moves.AI_WON:
+                    case MoveUtility.AI_WON:
                         setChanged();
                         notifyObservers("GAME OVER\nThe computer beat you");
                         break;
-                    case Moves.TIE:
+                    case MoveUtility.TIE:
                         setChanged();
                         notifyObservers("GAME OVER\nYou tied with the computer");
                         break;
@@ -140,7 +139,7 @@ public class OthelloBoard extends Observable implements ActionListener {
      */
     private void handleMoves() {
         switchCurrentColor();
-        currentLegalMoves = Moves.getLeagalMoves(currentColor, board);
+        currentLegalMoves = MoveUtility.getLeagalMoves(currentColor, board);
         if (currentLegalMoves.length == 0) {
             switch (currentColor) {
                 case BLACK:

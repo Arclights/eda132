@@ -3,7 +3,7 @@ package ai;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.Moves;
+import model.MoveUtility;
 import model.OthelloBoard;
 
 /**
@@ -91,11 +91,12 @@ public class Search {
         /**
          * Thi class represents a node in the state tree
          */
-        public class Node {
+        private class Node {
             private int[][] state;
             int[] move;
             private Node parent;
             private List<Node> children;
+            /* Whether to maximize or minimize the outcome of a move. See https://en.wikipedia.org/wiki/Minimax */
             private boolean max;
             private int aiColor;
             private double evaluation;
@@ -104,13 +105,12 @@ public class Search {
             private String name;
             private int level;
 
-            public Node(int[][] state, int[] move, int aiColor, boolean max,
-                        int level, Node parent, String name) {
+            public Node(int[][] state, int[] move, int aiColor, boolean max, int level, Node parent, String name) {
                 this.state = state;
                 this.move = move;
                 this.aiColor = aiColor;
                 this.max = max;
-                children = new ArrayList<Node>();
+                children = new ArrayList<>();
                 this.parent = parent;
                 this.level = level;
                 evaluation = Double.MIN_VALUE;
@@ -126,56 +126,118 @@ public class Search {
              * @param timeLimit  The time limit in which to complete the search
              * @param startTime  The time when the search started
              */
-            public void createNewStates(int levelLimit, long timeLimit,
-                                        long startTime) {
-                int[][] moves = Moves.getLeagalMoves(aiColor, state);
+            public void createNewStates(int levelLimit, long timeLimit, long startTime) {
+                int[][] moves = MoveUtility.getLeagalMoves(aiColor, state);
                 int childNbr = 0;
                 if (level == levelLimit) {
                     evaluation = eVal(state, aiColor);
                 } else if (moves.length == 0) {
                     pass = true;
                     if (parent.pass) {
-                        evaluation = Moves.utility(state, aiColor);
+                        evaluation = MoveUtility.utility(state, aiColor);
                     } else {
+                        if (isOutOfTime(timeLimit, startTime))
+                            return;
+
                         int[][] newState = copy(state);
-                        Node child = new Node(newState, new int[]{move[0],
-                                move[1]}, aiColor * -1, !max, level + 1, this,
-                                name + ":" + childNbr);
-                        children.add(child);
+                        Node child = createNewSubTree(newState, new int[]{move[0], move[1]}, levelLimit, timeLimit,
+                                startTime, childNbr);
                         evaluation = child.evaluation;
                     }
                 } else {
-
                     for (int[] move : moves) {
-                        if (System.currentTimeMillis() - startTime >= timeLimit) {
+                        if (isOutOfTime(timeLimit, startTime))
                             return;
-                        }
+
                         int[][] newState = copy(state);
-                        Moves.performMove(newState, move, aiColor);
-                        Node child = new Node(newState, new int[]{move[0],
-                                move[1]}, aiColor * -1, !max, level + 1, this,
-                                name + ":" + childNbr);
-                        children.add(child);
-                        child.createNewStates(levelLimit, timeLimit, startTime);
-
-                        if (max) {
-                            // Max
-                            if (child.evaluation > evaluation) {
-                                evaluation = child.evaluation;
-                            }
-                        } else {
-                            // Min
-                            if (evaluation == Double.MIN_VALUE) {
-                                evaluation = child.evaluation;
-                            } else if (child.evaluation < evaluation) {
-                                evaluation = child.evaluation;
-                            }
-                        }
-
+                        MoveUtility.performMove(newState, move, aiColor);
+                        Node child = createNewSubTree(newState, new int[]{move[0], move[1]}, levelLimit, timeLimit,
+                                startTime, childNbr);
+                        updateEvaluation(child);
                         childNbr++;
                     }
                 }
 
+            }
+
+            /**
+             * Creates a new sub tree based on move on the current state
+             *
+             * @param newState   The new state of the board to use
+             * @param move       The move to be made
+             * @param levelLimit The level limit of the search
+             * @param timeLimit  The time limit of the search
+             * @param startTime  The start time of the search
+             * @param childNbr   The number of this new child node
+             */
+            private Node createNewSubTree(int[][] newState, int[] move, int levelLimit, long timeLimit, long startTime,
+                                          int childNbr) {
+
+                Node child = createNewChild(newState, move, childNbr);
+
+                child.createNewStates(levelLimit, timeLimit, startTime);
+
+                return child;
+            }
+
+            /**
+             * Creates a new child and adds it to the current node
+             *
+             * @param newState The new state of the board to use
+             * @param move     The move to be performed
+             * @param childNbr The number of this new child node
+             * @return The new child node
+             */
+            private Node createNewChild(int[][] newState, int[] move, int childNbr) {
+                int childColor = switchColor(aiColor);
+                boolean childMax = !max;
+                int childLevel = level + 1;
+                String childName = name + ":" + childNbr;
+                Node child = new Node(newState, move, childColor, childMax, childLevel, this, childName);
+                children.add(child);
+                return child;
+            }
+
+            /**
+             * Returns whether we are out of time for the search
+             *
+             * @param timeLimit The time limit of the search
+             * @param startTime The start time of the search
+             * @return If we are out of time
+             */
+            private boolean isOutOfTime(long timeLimit, long startTime) {
+                return System.currentTimeMillis() - startTime >= timeLimit;
+            }
+
+            /**
+             * Switches the color between black and white
+             *
+             * @param color The color
+             * @return The new color
+             */
+            private int switchColor(int color) {
+                return color * -1;
+            }
+
+            /**
+             * Updates the evaluation based on whether to maximize or minimize the outcome
+             *
+             * @param child
+             */
+            private void updateEvaluation(Node child) {
+                if (max) {
+                    // Max
+                    if (child.evaluation > evaluation) {
+                        evaluation = child.evaluation;
+                    }
+                } else {
+                    // Min
+                    if (evaluation == Double.MIN_VALUE) {
+                        evaluation = child.evaluation;
+                    } else if (child.evaluation < evaluation) {
+                        evaluation = child.evaluation;
+                    }
+                }
             }
 
             /**
