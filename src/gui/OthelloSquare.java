@@ -1,6 +1,7 @@
 package gui;
 
 import static model.OthelloBoard.BLACK;
+import static model.OthelloBoard.EMPTY;
 import static model.OthelloBoard.WHITE;
 
 import java.awt.Color;
@@ -16,78 +17,98 @@ import javax.swing.JPanel;
 
 import model.OthelloBoard;
 
-@SuppressWarnings("serial")
+/**
+ * This class represents a square on the Othello board
+ */
 class OthelloSquare extends JPanel implements Observer, MouseListener {
 
-	private OthelloBoard board;
-	private int x, y;
+    private OthelloBoard board;
 
-	private Color[] bgs = new Color[] { new Color(150, 150, 150),
-			new Color(200, 200, 200) };
+    /* Square location */
+    private int x, y;
 
-	public OthelloSquare(OthelloBoard board, int x, int y) {
-		board.addObserver(this);
-		this.board = board;
-		this.x = x;
-		this.y = y;
-		addMouseListener(this);
-		repaint();
-	}
+    /* The two colors creating the background pattern */
+    private Color[] bgs = new Color[]{new Color(150, 150, 150),
+            new Color(200, 200, 200)};
 
-	@Override
-	public void paint(Graphics g) {
-		super.paint(g);
-		int width = getWidth();
-		int height = getHeight();
+    public OthelloSquare(OthelloBoard board, int x, int y) {
+        board.addObserver(this);
+        this.board = board;
+        this.x = x;
+        this.y = y;
+        addMouseListener(this);
+        repaint();
+    }
 
-		Graphics2D g2 = (Graphics2D) g;
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+        int width = getWidth();
+        int height = getHeight();
 
-		g2.setColor(bgs[x & 1 ^ y & 1]);
-		g2.fillRect(0, 0, width, height);
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
 
-		switch (board.getSquare(x, y)) {
-		case BLACK:
-			g2.setColor(Color.BLACK);
-			break;
-		case WHITE:
-			g2.setColor(Color.WHITE);
-			break;
-		}
-		g2.fillOval(10, 10, width - 20, height - 20);
+        g2.setColor(bgs[x & 1 ^ y & 1]); /* This will alternate the color creating a checker pattern */
+        g2.fillRect(0, 0, width, height);
 
-	}
+        switch (board.getSquare(x, y)) {
+            case BLACK:
+                g2.setColor(Color.BLACK);
+                break;
+            case WHITE:
+                g2.setColor(Color.WHITE);
+                break;
+            case EMPTY:
+                break;
+        }
+        g2.fillOval(10, 10, width - 20, height - 20);
 
-	@Override
-	public void update(Observable o, Object arg) {
-		repaint();
+    }
 
-	}
+    /**
+     * The method called by the observable of this observer.
+     * This class is observing the Othello model.
+     * When called the square should be repainted.
+     *
+     * @param o   The observable making the call
+     * @param arg The argument the observable sends
+     */
+    @Override
+    public void update(Observable o, Object arg) {
+        repaint();
 
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		board.setSquare(x, y, BLACK);
+    }
 
-	}
+    /**
+     * Sets the color of the square to the color of the player when clicked
+     *
+     * @param e The mouse event triggering the call
+     */
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        board.setSquare(x, y, board.getPlayerColor());
 
-	@Override
-	public void mouseEntered(MouseEvent e) {
+    }
 
-	}
+    @Override
+    public void mouseEntered(MouseEvent e) {
 
-	@Override
-	public void mouseExited(MouseEvent e) {
+    }
 
-	}
+    @Override
+    public void mouseExited(MouseEvent e) {
 
-	@Override
-	public void mousePressed(MouseEvent e) {
+    }
 
-	}
+    @Override
+    public void mousePressed(MouseEvent e) {
 
-	@Override
-	public void mouseReleased(MouseEvent e) {
+    }
 
-	}
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
 }
